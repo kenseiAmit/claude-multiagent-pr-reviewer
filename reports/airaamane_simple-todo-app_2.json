@@ -1,0 +1,675 @@
+{
+  "pullRequest": {
+    "owner": "airaamane",
+    "repo": "simple-todo-app",
+    "number": 2
+  },
+  "fileReviews": [
+    {
+      "file": "src/App.tsx",
+      "codeQuality": {
+        "file": "src/App.tsx",
+        "issues": [
+          {
+            "line": 11,
+            "severity": "critical",
+            "category": "bug-risk",
+            "description": "ID generation using component-scoped variable 'nextId' will reset on every re-render. This causes duplicate IDs and state corruption when todos are added, as nextId resets to 1 on each render cycle.",
+            "suggestion": "Use useState or useRef to persist the ID counter across renders: const nextIdRef = useRef(1); const addTodo = (data: Omit<Todo, 'id' | 'completed'>) => { setTodos([...todos, { ...data, id: nextIdRef.current++, completed: false }]); };"
+          },
+          {
+            "line": 17,
+            "severity": "high",
+            "category": "performance",
+            "description": "Todos filtering and sorting runs on every render, including when unrelated state changes (like search input). This creates unnecessary re-computation, especially with large todo lists.",
+            "suggestion": "Memoize the filtered and sorted todos using useMemo to only recalculate when dependencies change."
+          },
+          {
+            "line": 26,
+            "severity": "high",
+            "category": "bug-risk",
+            "description": "Array.sort() mutates the original array. Since filteredTodos is derived from the todos state array, this can cause unexpected mutations and violate React's immutability principle, potentially breaking state updates.",
+            "suggestion": "Create a shallow copy before sorting to avoid mutation: const sortedTodos = [...filteredTodos].sort((a, b) => { ... });"
+          },
+          {
+            "line": 52,
+            "severity": "medium",
+            "category": "bug-risk",
+            "description": "The search state is passed to TodoList component but never actually used in the filtering logic. Search input changes but has no effect on displayed todos, creating a confusing UX bug.",
+            "suggestion": "Implement search filtering in the filteredTodos computation."
+          },
+          {
+            "line": 53,
+            "severity": "medium",
+            "category": "performance",
+            "description": "Inline arrow functions in onToggle and onDelete are recreated on every render, causing TodoList to re-render even when todos haven't changed.",
+            "suggestion": "Extract handlers using useCallback to maintain referential equality."
+          }
+        ],
+        "overallScore": 62,
+        "summary": "The component has a critical bug with ID generation that will cause duplicate IDs and state corruption. High severity issues include array mutation during sorting and missing search functionality implementation. Performance can be significantly improved with useMemo and useCallback hooks."
+      },
+      "testCoverage": {
+        "file": "src/App.tsx",
+        "hasTests": false,
+        "testFiles": [],
+        "untestedPaths": [
+          {
+            "type": "function",
+            "location": "App component (line 6)",
+            "priority": "critical",
+            "reasoning": "The main App component renders the entire application UI. Without tests, there's no verification that the component renders correctly, handles props, or integrates with child components properly.",
+            "suggestedTest": "Test that the App component renders with title and all UI elements (search input, filter selects, TodoForm, TodoList)."
+          },
+          {
+            "type": "function",
+            "location": "addTodo (line 14)",
+            "priority": "critical",
+            "reasoning": "This function manages the core business logic of adding todos. The nextId variable is mutated using let and increment (nextId++), which is problematic as it will reset on every render. This is a critical bug that needs testing to catch.",
+            "suggestedTest": "Test that adding a todo creates it with correct id, default completed status, and increments IDs for multiple todos."
+          },
+          {
+            "type": "branch",
+            "location": "filteredTodos - active filter branch (line 18)",
+            "priority": "high",
+            "reasoning": "The 'active' filter branch filters todos to show only incomplete items. This is core functionality that users rely on.",
+            "suggestedTest": "Test that selecting the active filter shows only incomplete todos."
+          },
+          {
+            "type": "edge-case",
+            "location": "search state (line 11) - UNUSED VARIABLE",
+            "priority": "high",
+            "reasoning": "The search state is declared and passed to TodoList component, but it's NOT used in the App component's filtering logic. This is a critical bug: the search input updates the state, but filteredTodos doesn't filter by search term.",
+            "suggestedTest": "Test that typing in the search input filters todos based on search term (this test will currently fail)."
+          }
+        ],
+        "coverageEstimate": 0,
+        "summary": "CRITICAL COVERAGE GAP: src/App.tsx has 0% test coverage. The search state is declared but NOT used in filtering logic - a major bug. The nextId variable uses let and increments with nextId++, which will reset on every render, causing duplicate IDs. Core business logic including addTodo, filtering, sorting, toggle, and delete operations are completely untested."
+      },
+      "refactorings": {
+        "file": "src/App.tsx",
+        "suggestions": [
+          {
+            "type": "pattern-improvement",
+            "location": "Line 11 (nextId variable)",
+            "impact": "high",
+            "description": "The 'nextId' variable is declared inside the component function but outside state management. This will be reset to 1 on every re-render, causing ID collisions and data corruption.",
+            "before": "let nextId = 1;",
+            "after": "const nextIdRef = useRef(1);",
+            "benefits": "Prevents ID collisions and ensures each todo gets a unique, incrementing ID. Using useRef preserves the value across re-renders without triggering additional renders."
+          },
+          {
+            "type": "extract-function",
+            "location": "Lines 17-26 (filteredTodos computation)",
+            "impact": "high",
+            "description": "The filtering and sorting logic is complex and should be extracted into a custom hook or separate functions with useMemo.",
+            "before": "const filteredTodos = todos.filter(...).filter(...); const sortedTodos = filteredTodos.sort(...);",
+            "after": "const sortedTodos > todos.filter(filterByStatus).filter(filterByPriority).sort(sortByPriority), [todos, filter, priorityFilter]);",
+            "benefits": "Improves code organization, testability, and maintainability. Using useMemo prevents unnecessary recalculations when unrelated state changes."
+          },
+          {
+            "type": "modernize",
+            "location": "Lines 44-46 (onToggle and onDelete handlers)",
+            "impact": "medium",
+            "description": "Inline arrow functions in JSX props are recreated on every render, causing unnecessary re-renders of child components.",
+            "before": "onToggle={(id) => setTodos(todos.map(...))} onDelete={(id) => setTodos(todos.filter(...))}",
+            "after": "const handleToggle = useCallback((id: number) => { setTodos(prevTodos => prevTodos.map(...)); }, []); const handleDelete = useCallback((id: number) => { setTodos(prevTodos => prevTodos.filter(...)); }, []);",
+            "benefits": "Prevents unnecessary re-renders of TodoList component by maintaining stable function references. Improves performance, especially with larger todo lists."
+          }
+        ],
+        "summary": "The App.tsx file has several critical issues. The most critical is the 'nextId' variable bug which will cause ID collisions - this must be fixed using useRef. The component also suffers from performance issues due to inline callbacks and non-memoized computations. Extracting the complex filtering/sorting logic would significantly improve testability and readability."
+      }
+    },
+    {
+      "file": "src/components/TodoForm.tsx",
+      "codeQuality": {
+        "file": "src/components/TodoForm.tsx",
+        "issues": [
+          {
+            "line": 15,
+            "severity": "high",
+            "category": "bug-risk",
+            "description": "Date comparison logic flaw: Comparing Date objects with < operator compares timestamps, but 'new Date()' includes time component. A due date set to today will fail validation if current time has passed midnight, even though the date itself is valid.",
+            "suggestion": "Compare only the date portions, ignoring time: const today = new Date(); today.setHours(0,0,0,0); const selectedDate = new Date(dueDate); selectedDate.setHours(0,0,0,0); if (selectedDate < today) { ... }"
+          },
+          {
+            "line": 15,
+            "severity": "medium",
+            "category": "bug-risk",
+            "description": "Invalid date handling: new Date(dueDate) with an invalid date string returns 'Invalid Date' object which doesn't throw an error but produces NaN timestamp. Comparison with < returns false, allowing invalid dates to pass validation.",
+            "suggestion": "Validate date string before comparison using isNaN(date.getTime())."
+          },
+          {
+            "line": 19,
+            "severity": "medium",
+            "category": "security",
+            "description": "Potential XSS vulnerability through unvalidated user input: The 'text' field accepts arbitrary user input without sanitization. While React escapes content by default when rendering, if this data is passed to components that use dangerouslySetInnerHTML or stored in backend without sanitization, it creates XSS risk.",
+            "suggestion": "Add input validation and length constraints (maxLength attribute, text.length > MAX_LENGTH check)."
+          },
+          {
+            "line": 28,
+            "severity": "medium",
+            "category": "security",
+            "description": "Missing input attributes for accessibility and security: Input fields lack 'maxLength', 'autoComplete', 'required', and ARIA attributes. Missing maxLength allows unlimited input that could cause DoS through oversized payloads.",
+            "suggestion": "Add security and accessibility attributes: maxLength={500}, required, autoComplete=\"off\", aria-label, aria-invalid."
+          }
+        ],
+        "overallScore": 68,
+        "summary": "The TodoForm component has several significant issues requiring attention. The most critical problems are: (1) Date comparison logic that incorrectly validates today's date as past due, (2) Missing validation for invalid date formats, (3) Unsafe type assertion for priority without runtime validation, and (4) Potential XSS vulnerability through unsanitized user input."
+      },
+      "testCoverage": {
+        "file": "src/components/TodoForm.tsx",
+        "hasTests": false,
+        "testFiles": [],
+        "untestedPaths": [
+          {
+            "type": "branch",
+            "location": "handleSubmit - empty text validation (line 14-17)",
+            "priority": "critical",
+            "reasoning": "This validation prevents users from adding empty tasks, which is critical for data integrity. Without this test, a regression could allow invalid data to be added to the application state.",
+            "suggestedTest": "Test that submitting empty text or whitespace-only text shows an error and doesn't call onAdd."
+          },
+          {
+            "type": "branch",
+            "location": "handleSubmit - past date validation (line 18-21)",
+            "priority": "high",
+            "reasoning": "This validation ensures business logic integrity by preventing users from setting due dates in the past. This is important for task management functionality.",
+            "suggestedTest": "Test that submitting a past due date shows an error and doesn't call onAdd."
+          },
+          {
+            "type": "function",
+            "location": "handleSubmit - successful submission (line 22-27)",
+            "priority": "critical",
+            "reasoning": "This is the primary happy path for the component - successfully adding a new todo. This tests the core business logic: calling onAdd with correct data structure and resetting the form state.",
+            "suggestedTest": "Test that successful submission calls onAdd with correct data and resets all form fields."
+          },
+          {
+            "type": "edge-case",
+            "location": "handleSubmit - date validation boundary (today's date)",
+            "priority": "medium",
+            "reasoning": "The boundary condition for date validation needs explicit testing. The validation checks if the date is in the past, but today's date should be valid.",
+            "suggestedTest": "Test that today's date is accepted as a valid due date without showing errors."
+          }
+        ],
+        "coverageEstimate": 0,
+        "summary": "The TodoForm component currently has 0% test coverage as no tests exist for this newly added file. Critical gaps include: (1) Empty text validation that prevents invalid data submission, (2) Past date validation ensuring business logic integrity, (3) Successful form submission and state reset flow."
+      },
+      "refactorings": {
+        "file": "src/components/TodoForm.tsx",
+        "suggestions": [
+          {
+            "type": "extract-function",
+            "location": "handleSubmit function, lines 13-26",
+            "impact": "high",
+            "description": "The handleSubmit function contains validation logic, form submission, and state reset. These responsibilities should be separated into dedicated validation and reset functions for better testability.",
+            "before": "const handleSubmit = (e: React.FormEvent) => { e.preventDefault(); if (!text.trim()) { ... } if (dueDate && new Date(dueDate) < new Date()) { ... } onAdd(...); setText(''); ... }",
+            "after": "const validateForm = (): string | null => { ... }; const resetForm = () => { ... }; const handleSubmit = (e: React.FormEvent) => { e.preventDefault(); const validationError = validateForm(); if (validationError) { setError(validationError); return; } onAdd(...); resetForm(); }",
+            "benefits": "Improves testability by allowing validation logic to be tested independently. Reduces cyclomatic complexity. Makes the code more maintainable and adheres to single responsibility principle."
+          },
+          {
+            "type": "modernize",
+            "location": "Date comparison in validation, line 17",
+            "impact": "medium",
+            "description": "The date comparison creates new Date objects inline and doesn't account for time component. Should use more explicit date comparison logic.",
+            "before": "if (dueDate && new Date(dueDate) < new Date()) { ... }",
+            "after": "const isDateInPast = (dateString: string): boolean => { const selectedDate = new Date(dateString); const today = new Date(); today.setHours(0,0,0,0); selectedDate.setHours(0,0,0,0); return selectedDate < today; };",
+            "benefits": "Provides more accurate date comparison by normalizing time components. Improves code readability and reusability. Prevents edge cases where same-day tasks are incorrectly flagged as past due."
+          },
+          {
+            "type": "simplify",
+            "location": "Priority type assertion, line 21",
+            "impact": "medium",
+            "description": "The type assertion 'priority as Todo['priority']' is a code smell. The priority state should be properly typed from the start.",
+            "before": "const [priority, setPriority] = useState('medium'); onAdd({ text, priority: priority as Todo['priority'], dueDate });",
+            "after": "type TodoPriority = 'low' | 'medium' | 'high'; const [priority, setPriority] = useState<TodoPriority>('medium'); onAdd({ text, priority, dueDate });",
+            "benefits": "Eliminates unsafe type assertion. Provides better IDE autocomplete. Prevents invalid priority values at compile time."
+          }
+        ],
+        "summary": "The TodoForm component has 8 refactoring opportunities spanning validation extraction, state management consolidation, type safety improvements, and accessibility enhancements. High-impact improvements include extracting validation logic into testable functions and modernizing date comparison logic."
+      }
+    },
+    {
+      "file": "src/components/TodoItem.tsx",
+      "codeQuality": {
+        "file": "src/components/TodoItem.tsx",
+        "issues": [
+          {
+            "line": 6,
+            "severity": "high",
+            "category": "bug-risk",
+            "description": "Function 'getPriorityColor' accepts 'string' type but only handles specific values ('high', 'medium', 'low'). The priority parameter should be strictly typed to prevent runtime bugs and ensure type safety.",
+            "suggestion": "Define a union type for priority values: type Priority = 'high' | 'medium' | 'low'; const getPriorityColor = (priority: Priority): string => { ... }"
+          },
+          {
+            "line": 17,
+            "severity": "high",
+            "category": "security",
+            "description": "Potential XSS vulnerability: 'todo.text' is rendered directly without sanitization. If user input is not sanitized on the server side, malicious scripts could be executed.",
+            "suggestion": "Ensure 'todo.text' is sanitized server-side or use a sanitization library. React's default XSS protection should handle this for text content, but verify data validation at the API/database layer."
+          },
+          {
+            "line": 18,
+            "severity": "high",
+            "category": "performance",
+            "description": "Inline arrow function in onChange creates a new function instance on every render, causing unnecessary re-renders of child components and potential performance issues in large lists.",
+            "suggestion": "Use useCallback to memoize the handler: const handleToggle = useCallback(() => onToggle(todo.id), [onToggle, todo.id]);"
+          },
+          {
+            "line": 20,
+            "severity": "high",
+            "category": "performance",
+            "description": "Date object is instantiated on every render even if 'todo.dueDate' hasn't changed. This creates unnecessary object allocations.",
+            "suggestion": "Memoize the formatted date: const formattedDueDate = useMemo(() => todo.dueDate ? new Date(todo.dueDate).toLocaleDateString() : null, [todo.dueDate]);"
+          },
+          {
+            "line": 21,
+            "severity": "medium",
+            "category": "bug-risk",
+            "description": "Date parsing using 'new Date(todo.dueDate)' can fail silently or produce invalid dates if the input format is unexpected. No error handling is present.",
+            "suggestion": "Add date validation and error handling with try-catch and isNaN(date.getTime()) checks."
+          }
+        ],
+        "overallScore": 62,
+        "summary": "The TodoItem component has several significant issues affecting security, performance, and type safety. Critical concerns include: (1) Potential XSS vulnerability from unsanitized text rendering, (2) Multiple performance issues from inline function creation and unnecessary re-renders, (3) Weak type safety with loose string typing for priority values."
+      },
+      "testCoverage": {
+        "file": "src/components/TodoItem.tsx",
+        "hasTests": false,
+        "testFiles": [],
+        "untestedPaths": [
+          {
+            "type": "function",
+            "location": "getPriorityColor",
+            "priority": "high",
+            "reasoning": "The getPriorityColor function contains critical UI logic with multiple branches (high, medium, low, default) that directly affect user experience. Each branch must be tested to ensure correct color mapping.",
+            "suggestedTest": "Test that each priority value ('high', 'medium', 'low') returns the correct color, and that unknown priorities return gray."
+          },
+          {
+            "type": "branch",
+            "location": "onToggle callback (line 19)",
+            "priority": "critical",
+            "reasoning": "The onToggle callback handles todo completion state changes, which is core functionality. Must verify that clicking the checkbox correctly invokes the callback with the right todo ID.",
+            "suggestedTest": "Test that clicking the checkbox calls onToggle with the correct todo ID, and that the checkbox reflects the completed state."
+          },
+          {
+            "type": "branch",
+            "location": "onDelete callback (line 24)",
+            "priority": "critical",
+            "reasoning": "The onDelete callback is destructive and permanently removes todos. Testing this interaction is critical to ensure data integrity and prevent accidental data loss bugs.",
+            "suggestedTest": "Test that clicking the delete button calls onDelete with the correct todo ID."
+          },
+          {
+            "type": "branch",
+            "location": "todo.dueDate conditional rendering (lines 21-23)",
+            "priority": "high",
+            "reasoning": "The dueDate field is optional and uses conditional rendering. Both branches (with and without dueDate) must be tested to ensure proper UI rendering and avoid runtime errors when parsing dates.",
+            "suggestedTest": "Test that dueDate is displayed when provided and formatted correctly, and that nothing is displayed when dueDate is absent."
+          }
+        ],
+        "coverageEstimate": 0,
+        "summary": "The TodoItem component has ZERO test coverage. Critical gaps include: (1) Untested getPriorityColor function with 4 branches, (2) Missing tests for onToggle and onDelete callbacks which handle data mutations, (3) No validation of conditional dueDate rendering, (4) Unverified priority fallback behavior."
+      },
+      "refactorings": {
+        "file": "src/components/TodoItem.tsx",
+        "suggestions": [
+          {
+            "type": "extract-function",
+            "location": "getPriorityColor function (lines 6-13)",
+            "impact": "medium",
+            "description": "The getPriorityColor function is defined inside the component file but doesn't use any component state or props. It should be extracted to a utilities file for better separation of concerns and reusability.",
+            "before": "const getPriorityColor = (priority: string) => { switch(priority) { ... } };",
+            "after": "// In src/utils/priority.ts export const PRIORITY_COLORS = { high: 'red', medium: 'orange', low: 'green', default: 'gray' }; export const getPriorityColor = (priority: string): string => { ... };",
+            "benefits": "Improves reusability across multiple components, enables easier testing in isolation, simplifies the component file, allows for centralized color management."
+          },
+          {
+            "type": "pattern-improvement",
+            "location": "Inline styles and styling approach (line 16)",
+            "impact": "medium",
+            "description": "Using inline styles with dynamic color values mixes styling logic with component structure. Consider using CSS modules or styled-components.",
+            "before": "<li style={{ color: getPriorityColor(todo.priority || 'medium') }}>",
+            "after": "<li className={`${styles.todoItem} ${styles[`priority-${todo.priority || 'medium'}`]}`}>",
+            "benefits": "Separates concerns between styling and logic, enables CSS features like pseudo-selectors and media queries, improves maintainability and themability."
+          },
+          {
+            "type": "simplify",
+            "location": "Component structure and event handlers (lines 15-22)",
+            "impact": "medium",
+            "description": "The component creates new arrow functions on every render for onChange and onClick handlers. Additionally, the component lacks semantic HTML structure and accessibility attributes.",
+            "before": "export function TodoItem({ todo, onToggle, onDelete }: Props) { return (<li>...<input onChange={() => onToggle(todo.id)} />...</li>); }",
+            "after": "export const TodoItem = React.memo(function TodoItem({ todo, onToggle, onDelete }: TodoItemProps) { const handleToggle = useCallback(() => onToggle(todo.id), [todo.id, onToggle]); const handleDelete = useCallback(() => onDelete(todo.id), [todo.id, onDelete]); return (<li className={...} role=\"listitem\"><label>...<input aria-label={...} /></label></li>); });",
+            "benefits": "Prevents unnecessary re-renders with React.memo and useCallback, improves accessibility with ARIA labels, optimizes performance by memoizing event handlers."
+          }
+        ],
+        "summary": "The TodoItem component has 7 refactoring opportunities. Key improvements include: (1) extracting the getPriorityColor utility function to a shared module, (2) replacing inline styles with CSS modules, (3) implementing React.memo and useCallback for performance optimization, (4) adding proper accessibility attributes."
+      }
+    },
+    {
+      "file": "src/components/TodoList.tsx",
+      "codeQuality": {
+        "file": "src/components/TodoList.tsx",
+        "issues": [
+          {
+            "line": 13,
+            "severity": "high",
+            "category": "performance",
+            "description": "Filter operation executes on every render without memoization. In a component that re-renders frequently, this causes unnecessary re-computation of the filtered list even when 'todos' or 'search' haven't changed.",
+            "suggestion": "Use React.useMemo to memoize the filtered results: const visible = React.useMemo(() => todos.filter((t) => t.text.toLowerCase().includes(search.toLowerCase())), [todos, search]);"
+          },
+          {
+            "line": 13,
+            "severity": "medium",
+            "category": "performance",
+            "description": "Multiple string operations (.toLowerCase()) are called on each todo item during filtering. For large lists, this creates temporary string allocations on every filter pass. Additionally, search.toLowerCase() is computed repeatedly for each todo item.",
+            "suggestion": "Pre-compute the lowercase search term once: const searchLower = search.toLowerCase(); return todos.filter((t) => t.text.toLowerCase().includes(searchLower));"
+          },
+          {
+            "line": 13,
+            "severity": "medium",
+            "category": "bug-risk",
+            "description": "No null/undefined safety check on 't.text'. If a Todo object has a null or undefined 'text' property, the code will throw a runtime error.",
+            "suggestion": "Add defensive null checking: return todos.filter((t) => t.text?.toLowerCase().includes(searchLower) ?? false);"
+          },
+          {
+            "line": 14,
+            "severity": "low",
+            "category": "maintainability",
+            "description": "No handling for empty search results. When the filter returns an empty array, users see a blank space with no feedback.",
+            "suggestion": "Add empty state handling: {visible.length === 0 ? <li>No todos match your search</li> : visible.map(...)}"
+          }
+        ],
+        "overallScore": 72,
+        "summary": "The TodoList component is functional but has notable performance and robustness issues. The primary concern is the lack of memoization for the filter operation (HIGH severity), which will cause unnecessary re-computation on every render. There's also a MEDIUM severity bug risk from missing null checks on the text property."
+      },
+      "testCoverage": {
+        "file": "src/components/TodoList.tsx",
+        "hasTests": false,
+        "testFiles": [],
+        "untestedPaths": [
+          {
+            "type": "branch",
+            "location": "Line 12 - filter function with toLowerCase()",
+            "priority": "critical",
+            "reasoning": "The search filter is the core new feature being added in this PR. The case-insensitive matching logic (using toLowerCase()) is critical business logic that must be thoroughly tested to ensure users can search regardless of letter case.",
+            "suggestedTest": "Test that filtering is case-insensitive and matches todos containing the search term as a substring."
+          },
+          {
+            "type": "edge-case",
+            "location": "Line 12 - search parameter",
+            "priority": "high",
+            "reasoning": "When search is an empty string, all todos should be displayed. This is a critical edge case that affects default behavior and must be explicitly tested.",
+            "suggestedTest": "Test that empty search string displays all todos."
+          },
+          {
+            "type": "edge-case",
+            "location": "Line 12 - filter function returning empty array",
+            "priority": "high",
+            "reasoning": "When no todos match the search term, the component should handle this gracefully by rendering an empty list. This edge case is important for UX.",
+            "suggestedTest": "Test that no matches returns an empty list without errors."
+          },
+          {
+            "type": "function",
+            "location": "Line 14 - onToggle and onDelete props",
+            "priority": "high",
+            "reasoning": "The component passes callback functions to TodoItem children. We must verify these props are correctly passed through to ensure user interactions work properly.",
+            "suggestedTest": "Test that onToggle and onDelete callbacks are passed correctly to TodoItem children and invoked with the right IDs."
+          }
+        ],
+        "coverageEstimate": 0,
+        "summary": "The TodoList component has zero test coverage as it is a new file being added in the PR. Critical untested paths include the case-insensitive search filter logic (the main feature), rendering behavior, and multiple edge cases (empty search, no matches, empty arrays, special characters)."
+      },
+      "refactorings": {
+        "file": "src/components/TodoList.tsx",
+        "suggestions": [
+          {
+            "type": "extract-function",
+            "location": "TodoList component - line 13 (filter logic)",
+            "impact": "medium",
+            "description": "The filtering logic is embedded directly in the component. Extracting it to a separate function improves testability, reusability, and separation of concerns.",
+            "before": "const visible = todos.filter((t) => t.text.toLowerCase().includes(search.toLowerCase()));",
+            "after": "const filterTodosBySearch = (todos: Todo[], search: string): Todo[] => { const searchLower = search.toLowerCase(); return todos.filter((todo) => todo.text.toLowerCase().includes(searchLower)); }; const visible = filterTodosBySearch(todos, search);",
+            "benefits": "Improved testability (can unit test filtering independently), better code organization, avoids redundant toLowerCase() calls on the search term."
+          },
+          {
+            "type": "modernize",
+            "location": "TodoList component - entire component",
+            "impact": "low",
+            "description": "The component uses a simple filter that recalculates on every render. Using React.useMemo would optimize performance by memoizing the filtered results.",
+            "before": "const visible = todos.filter((t) => t.text.toLowerCase().includes(search.toLowerCase()));",
+            "after": "const visible = React.useMemo(() => todos.filter((t) => t.text.toLowerCase().includes(search.toLowerCase())), [todos, search]);",
+            "benefits": "Performance optimization - prevents unnecessary filtering operations when unrelated props change. Particularly beneficial with large todo lists."
+          },
+          {
+            "type": "pattern-improvement",
+            "location": "Entire file - filtering logic placement",
+            "impact": "medium",
+            "description": "The filtering logic is a UI concern mixed with data transformation. Consider implementing a custom hook (useFilteredTodos) that encapsulates the filtering logic and memoization.",
+            "before": "const visible = todos.filter(...);",
+            "after": "const useFilteredTodos = (todos: Todo[], search: string) => { return React.useMemo(() => { if (!search) return todos; const searchLower = search.toLowerCase(); return todos.filter((todo) => todo.text.toLowerCase().includes(searchLower)); }, [todos, search]); }; const visible = useFilteredTodos(todos, search);",
+            "benefits": "Better separation of concerns, improved testability (hook can be tested independently), reusability across components."
+          }
+        ],
+        "summary": "The TodoList component is relatively simple but has several refactoring opportunities. High-priority improvements include extracting the filter logic to a custom hook with memoization, and optimizing the redundant toLowerCase() calls. The component would benefit from React best practices with useMemo for expensive operations."
+      }
+    },
+    {
+      "file": "src/types/Todo.ts",
+      "codeQuality": {
+        "file": "src/types/Todo.ts",
+        "issues": [
+          {
+            "line": 2,
+            "severity": "medium",
+            "category": "bug-risk",
+            "description": "Using 'number' type for ID is unsafe for large-scale applications. JavaScript numbers lose precision beyond Number.MAX_SAFE_INTEGER, which can cause ID collision issues.",
+            "suggestion": "Use string type for IDs to support UUIDs, large integers, or database-generated IDs."
+          },
+          {
+            "line": 6,
+            "severity": "high",
+            "category": "security",
+            "description": "The 'dueDate' field uses primitive string type without validation constraints, allowing arbitrary string values. This creates injection risks if the date string is used in SQL queries or date parsing without validation.",
+            "suggestion": "Use Date type or branded type with runtime validation: dueDate?: Date; or implement ISODateString branded type with validation function."
+          },
+          {
+            "line": 3,
+            "severity": "high",
+            "category": "security",
+            "description": "The 'text' field accepts unrestricted strings without length limits or content validation. This creates XSS risks, DoS via large strings, and injection vulnerabilities.",
+            "suggestion": "Add validation constraints and document sanitization requirements. Define TODO_TEXT_MAX_LENGTH constant and implement validation function with HTML escaping."
+          },
+          {
+            "line": 5,
+            "severity": "low",
+            "category": "maintainability",
+            "description": "Priority values are defined inline as a union type. For search features that filter by priority, these should be extracted into a separate type/enum.",
+            "suggestion": "Extract: export type TodoPriority = 'high' | 'medium' | 'low'; export const TODO_PRIORITIES: readonly TodoPriority[] = ['high', 'medium', 'low'];"
+          }
+        ],
+        "overallScore": 68,
+        "summary": "The Todo.ts type definition has significant security and type safety concerns. Critical issues include: (1) unrestricted text field creating XSS and injection vulnerabilities, (2) unsafe string-based dueDate without validation, (3) numeric ID type risking precision loss. The code lacks input validation, length constraints, and security documentation."
+      },
+      "testCoverage": {
+        "file": "src/types/Todo.ts",
+        "hasTests": false,
+        "testFiles": [],
+        "untestedPaths": [
+          {
+            "type": "function",
+            "location": "Type guard function for Todo interface validation",
+            "priority": "high",
+            "reasoning": "Since this interface is used in search functionality, runtime validation is critical to ensure data integrity when filtering or processing todos from external sources.",
+            "suggestedTest": "Implement and test isTodo() type guard function that validates all required fields and their types."
+          },
+          {
+            "type": "edge-case",
+            "location": "Todo.priority optional field validation",
+            "priority": "high",
+            "reasoning": "The priority field accepts only specific string literals. In search features, users might filter by priority or set invalid values. Without validation, invalid priority values could break search filters.",
+            "suggestedTest": "Implement and test isPriorityValid() function that validates priority values against the allowed set."
+          },
+          {
+            "type": "edge-case",
+            "location": "Todo.dueDate optional field validation and format",
+            "priority": "critical",
+            "reasoning": "The dueDate field is typed as optional string without format constraints. For search functionality (e.g., filtering by date ranges), invalid date formats will cause bugs.",
+            "suggestedTest": "Implement and test isValidDueDate() and parseTodoDueDate() functions with ISO 8601 validation."
+          },
+          {
+            "type": "function",
+            "location": "Search/filter helper functions for Todo objects",
+            "priority": "critical",
+            "reasoning": "Since this is part of a PR adding search functionality, search/filter utilities are the core feature. Without tests, the search feature could have critical bugs.",
+            "suggestedTest": "Implement and test searchTodos(), filterByPriority(), filterByCompleted(), and filterByOverdue() functions."
+          }
+        ],
+        "coverageEstimate": 0,
+        "summary": "The Todo.ts type definition file has NO test coverage (0%). The interface lacks runtime validation helpers (type guards, validators) essential for ensuring data integrity during search operations. Key missing tests include type guards, priority/date validation, and search/filter utility functions."
+      },
+      "refactorings": {
+        "file": "src/types/Todo.ts",
+        "suggestions": [
+          {
+            "type": "modernize",
+            "location": "Todo interface, dueDate property (line 6)",
+            "impact": "medium",
+            "description": "The dueDate field uses a primitive string type which lacks type safety and validation. Using a Date type would prevent invalid date strings.",
+            "before": "dueDate?: string;",
+            "after": "dueDate?: Date;",
+            "benefits": "Type safety: Prevents assignment of invalid date strings. Better IDE support and easier date manipulation."
+          },
+          {
+            "type": "pattern-improvement",
+            "location": "Todo interface, priority property (line 5)",
+            "impact": "medium",
+            "description": "Extract the priority union type into a separate named type for reusability and maintainability.",
+            "before": "priority?: 'high' | 'medium' | 'low';",
+            "after": "export type TodoPriority = 'high' | 'medium' | 'low'; priority?: TodoPriority;",
+            "benefits": "Reusability: TodoPriority can be used in filters and validation. Single source of truth for priority values."
+          },
+          {
+            "type": "pattern-improvement",
+            "location": "Entire file",
+            "impact": "high",
+            "description": "Add validation helpers, type guards, and factory functions to create a more robust type system. Add search-related types to support the new search functionality.",
+            "before": "export interface Todo { id: number; text: string; completed: boolean; priority?: 'high' | 'medium' | 'low'; dueDate?: string; }",
+            "after": "Add: isTodoPriority() type guard, isTodo() type guard, createTodo() factory function, TodoSearchQuery interface, TodoSearchResult interface, TodoSearchOptions interface for comprehensive search support.",
+            "benefits": "Runtime safety with type guards, better API with factory functions, comprehensive search functionality support, improved testability."
+          }
+        ],
+        "summary": "The Todo.ts interface is simple but lacks modern TypeScript patterns and proper support for search functionality. Key improvements include using Date type for dueDate, extracting TodoPriority into a named type, adding type guards and factory functions, and introducing comprehensive search-related types."
+      }
+    }
+  ],
+  "summary": {
+    "totalFiles": 5,
+    "overallScore": 66,
+    "criticalIssues": 3,
+    "highPriorityTests": 18,
+    "refactoringOpportunities": 21
+  },
+  "recommendations": [
+    {
+      "priority": "critical",
+      "category": "Bug Fix",
+      "description": "Fix ID generation bug in App.tsx: The nextId variable resets on every render, causing duplicate IDs and data corruption. Use useRef to persist the counter across renders.",
+      "files": [
+        "src/App.tsx"
+      ]
+    },
+    {
+      "priority": "critical",
+      "category": "Missing Feature",
+      "description": "Implement search functionality in App.tsx: The search state is declared but NOT used in the filtering logic. Users can type in the search box but it has no effect. Add search filtering to the filteredTodos computation.",
+      "files": [
+        "src/App.tsx"
+      ]
+    },
+    {
+      "priority": "critical",
+      "category": "Test Coverage",
+      "description": "Add comprehensive test coverage: All 5 files have 0% test coverage. Priority: Test the search filter logic (core feature), date validation, and form submission flows before merging.",
+      "files": [
+        "src/App.tsx",
+        "src/components/TodoForm.tsx",
+        "src/components/TodoItem.tsx",
+        "src/components/TodoList.tsx",
+        "src/types/Todo.ts"
+      ]
+    },
+    {
+      "priority": "high",
+      "category": "Bug Fix",
+      "description": "Fix date validation in TodoForm.tsx: The date comparison includes time components, causing today's date to fail validation. Normalize dates to midnight before comparison.",
+      "files": [
+        "src/components/TodoForm.tsx"
+      ]
+    },
+    {
+      "priority": "high",
+      "category": "Performance",
+      "description": "Add memoization to prevent unnecessary re-renders: Use useMemo for expensive filtering/sorting operations and useCallback for event handlers in App.tsx, TodoList.tsx, and TodoItem.tsx.",
+      "files": [
+        "src/App.tsx",
+        "src/components/TodoList.tsx",
+        "src/components/TodoItem.tsx"
+      ]
+    },
+    {
+      "priority": "high",
+      "category": "Security",
+      "description": "Add input validation and sanitization: The text field accepts unrestricted input without length limits. Add maxLength attributes, validate input length, and ensure server-side sanitization.",
+      "files": [
+        "src/components/TodoForm.tsx",
+        "src/types/Todo.ts"
+      ]
+    },
+    {
+      "priority": "high",
+      "category": "Bug Fix",
+      "description": "Fix array mutation in App.tsx: Array.sort() mutates the original array, violating React's immutability principles. Create a shallow copy before sorting.",
+      "files": [
+        "src/App.tsx"
+      ]
+    },
+    {
+      "priority": "medium",
+      "category": "Type Safety",
+      "description": "Improve TypeScript type safety: Extract TodoPriority type, add runtime type guards for validation, use Date type instead of string for dueDate, and eliminate unsafe type assertions.",
+      "files": [
+        "src/types/Todo.ts",
+        "src/components/TodoForm.tsx",
+        "src/components/TodoItem.tsx"
+      ]
+    },
+    {
+      "priority": "medium",
+      "category": "Accessibility",
+      "description": "Add ARIA labels and semantic HTML: Interactive elements lack proper labels for screen readers. Add aria-label, aria-invalid, and role attributes throughout components.",
+      "files": [
+        "src/App.tsx",
+        "src/components/TodoForm.tsx",
+        "src/components/TodoItem.tsx"
+      ]
+    },
+    {
+      "priority": "low",
+      "category": "Code Quality",
+      "description": "Refactor for maintainability: Extract utility functions (getPriorityColor, date formatters), use custom hooks for filtering logic, and add comprehensive JSDoc documentation.",
+      "files": [
+        "src/components/TodoItem.tsx",
+        "src/components/TodoList.tsx",
+        "src/types/Todo.ts"
+      ]
+    }
+  ],
+  "metadata": {
+    "analyzedAt": "2026-10-02T18:45:00.000Z",
+    "duration": 1079599,
+    "agentVersions": {
+      "orchestrator": "1.0.0",
+      "code-quality-analyzer": "1.0.0",
+      "test-coverage-analyzer": "1.0.0",
+      "refactoring-suggester": "1.0.0"
+    }
+  }
+}
