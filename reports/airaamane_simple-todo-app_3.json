@@ -1,0 +1,599 @@
+{
+  "pullRequest": {
+    "owner": "airaamane",
+    "repo": "simple-todo-app",
+    "number": 3
+  },
+  "fileReviews": [
+    {
+      "file": "index.html",
+      "codeQuality": {
+        "file": "index.html",
+        "issues": [
+          {
+            "line": 2,
+            "severity": "high",
+            "category": "best-practice",
+            "description": "Missing 'lang' attribute on <html> element. The previous version had 'lang=\"en\"' which was removed. This is critical for accessibility, SEO, and browser features like translation and screen readers.",
+            "suggestion": "Add the lang attribute back: <html lang=\"en\">"
+          },
+          {
+            "line": 3,
+            "severity": "high",
+            "category": "best-practice",
+            "description": "Missing <meta charset=\"UTF-8\"> declaration in <head>. Without explicit character encoding, the browser may misinterpret special characters, leading to rendering issues or potential security vulnerabilities.",
+            "suggestion": "Add character encoding and viewport meta tags in the head section"
+          },
+          {
+            "line": 11,
+            "severity": "critical",
+            "category": "security",
+            "description": "Input field lacks 'type' attribute and proper validation attributes. Without proper input validation and output encoding in the associated JavaScript (script.js), this creates a high XSS (Cross-Site Scripting) risk. User input from this field could be rendered unsafely to the DOM.",
+            "suggestion": "Add type, placeholder, maxlength, and aria-label attributes. Ensure script.js uses textContent (not innerHTML) when rendering todos."
+          },
+          {
+            "line": 11,
+            "severity": "medium",
+            "category": "best-practice",
+            "description": "Input field is missing 'placeholder' attribute. The original version had 'placeholder=\"Enter a todo...\"' which improves user experience by providing guidance.",
+            "suggestion": "Restore the placeholder attribute"
+          },
+          {
+            "line": 12,
+            "severity": "medium",
+            "category": "best-practice",
+            "description": "Button lacks 'type' attribute. Without explicit type=\"button\", it defaults to 'submit' which could cause unintended form submissions if wrapped in a form element later.",
+            "suggestion": "Explicitly set button type: <button type=\"button\" id=\"add-btn\">Add</button>"
+          },
+          {
+            "line": 11,
+            "severity": "high",
+            "category": "maintainability",
+            "description": "Input field is missing accessibility label. No associated <label> element or aria-label attribute, making it difficult for screen reader users to understand the input's purpose.",
+            "suggestion": "Add aria-label or associate with a label element"
+          },
+          {
+            "line": 9,
+            "severity": "medium",
+            "category": "security",
+            "description": "Empty div with id=\"premium-banner\" could be dynamically populated. If content is inserted via innerHTML with unsanitized data, this represents an XSS vulnerability point. Verify script.js properly sanitizes any content inserted here.",
+            "suggestion": "Ensure script.js uses safe DOM manipulation methods instead of innerHTML"
+          },
+          {
+            "line": 8,
+            "severity": "medium",
+            "category": "maintainability",
+            "description": "Inconsistent quote style: mixing single quotes (class='container') and double quotes. HTML best practice typically favors double quotes for attributes.",
+            "suggestion": "Use double quotes consistently for HTML attributes"
+          },
+          {
+            "line": 9,
+            "severity": "low",
+            "category": "maintainability",
+            "description": "Non-semantic HTML structure: Using <div class='header'> instead of semantic <h1> or <header> reduces accessibility and SEO value. The original version used <h1>Todos</h1> which was more semantic.",
+            "suggestion": "Use semantic HTML elements: <header><h1>Todo App</h1></header>"
+          },
+          {
+            "line": 10,
+            "severity": "low",
+            "category": "maintainability",
+            "description": "Main content area uses generic <div class='content'> instead of semantic <main> element. This reduces document outline clarity and accessibility.",
+            "suggestion": "Replace with semantic <main> element"
+          }
+        ],
+        "overallScore": 62,
+        "summary": "The HTML file has significant quality and security concerns introduced by PR #3. Critical issues include: (1) Missing 'lang' attribute removed from original, harming accessibility; (2) No charset declaration creating encoding ambiguity; (3) Input field lacks type/placeholder attributes and creates potential XSS vulnerability without proper JavaScript sanitization; (4) Missing input labels harm accessibility; (5) Non-semantic HTML structure (divs instead of h1/header/main) reduces accessibility and SEO. The premium-banner div is an additional XSS risk point. Score: 62/100."
+      },
+      "testCoverage": {
+        "file": "index.html",
+        "hasTests": false,
+        "testFiles": [],
+        "untestedPaths": [
+          {
+            "type": "function",
+            "location": "Document structure and critical DOM elements (lines 1-20)",
+            "priority": "critical",
+            "reasoning": "The premium-banner element (line 9) is a critical new feature from PR #3 that enables premium subscription functionality. Without testing its presence, the premium feature integration could silently fail in production, preventing users from accessing subscription options and impacting revenue.",
+            "suggestedTest": "Create DOM structure tests to verify presence of premium-banner, todo-input, add-btn, and todo-list elements with correct IDs and structure."
+          },
+          {
+            "type": "function",
+            "location": "Required interactive elements (lines 13-16)",
+            "priority": "critical",
+            "reasoning": "The todo-input, add-btn, and todo-list elements are core functionality elements that the JavaScript code depends on. If any of these elements are missing or have incorrect IDs, the entire todo application will fail silently without proper error handling.",
+            "suggestedTest": "Test that all required interactive elements exist with correct IDs and tag names"
+          },
+          {
+            "type": "edge-case",
+            "location": "Accessibility attributes and ARIA labels",
+            "priority": "high",
+            "reasoning": "The HTML structure lacks accessibility attributes (aria-labels, roles, alt text). This creates barriers for users with disabilities and may violate WCAG 2.1 AA compliance requirements.",
+            "suggestedTest": "Implement accessibility compliance tests using jest-axe or similar tools"
+          }
+        ],
+        "coverageEstimate": 0,
+        "summary": "The index.html file has ZERO test coverage despite being a critical entry point for a premium todo application. Eight significant untested areas were identified including the premium banner element (new feature), required interactive DOM elements, accessibility compliance, and external resource loading. Immediate action required: Implement DOM structure tests using testing frameworks like Vitest with JSDOM."
+      },
+      "refactorings": {
+        "file": "index.html",
+        "suggestions": [
+          {
+            "type": "modernize",
+            "location": "<html> tag (line 2)",
+            "impact": "high",
+            "description": "The lang attribute was removed from the <html> tag. This is a critical accessibility and SEO regression.",
+            "before": "<html>",
+            "after": "<html lang=\"en\">",
+            "benefits": "Improves accessibility for screen readers, enhances SEO, enables proper browser translation features, and follows WCAG 2.1 Level A compliance requirements."
+          },
+          {
+            "type": "pattern-improvement",
+            "location": "Header section (line 9)",
+            "impact": "high",
+            "description": "Replace generic div with semantic HTML5 header element and proper heading tag.",
+            "before": "<div class='header'>Todo App</div>",
+            "after": "<header class=\"header\">\n  <h1>Todo App</h1>\n</header>",
+            "benefits": "Improves semantic meaning for assistive technologies, enhances SEO through proper heading hierarchy, provides better document outline, and follows HTML5 best practices."
+          },
+          {
+            "type": "simplify",
+            "location": "Quote usage throughout file",
+            "impact": "medium",
+            "description": "Inconsistent quote usage mixing single quotes and double quotes reduces code maintainability.",
+            "before": "<div class='container'>",
+            "after": "<div class=\"container\">",
+            "benefits": "Ensures code consistency, improves readability, follows HTML standard conventions."
+          },
+          {
+            "type": "modernize",
+            "location": "Input element (line 12)",
+            "impact": "high",
+            "description": "The input element is missing critical attributes: type, placeholder, and aria-label.",
+            "before": "<input id=\"todo-input\" />",
+            "after": "<input id=\"todo-input\" type=\"text\" placeholder=\"Enter a new todo...\" aria-label=\"New todo item\" autocomplete=\"off\" />",
+            "benefits": "Improves accessibility with ARIA labels, enhances UX with placeholder text, ensures proper browser behavior."
+          }
+        ],
+        "summary": "The index.html file has significant refactoring opportunities primarily focused on modernization and accessibility improvements. Critical issues include: (1) Missing lang attribute on <html> tag (WCAG violation), (2) Poor semantic structure using divs instead of HTML5 elements, (3) Inconsistent quote usage, (4) Missing essential input attributes. The PR #3 changes introduced several regressions by removing important attributes."
+      }
+    },
+    {
+      "file": "script.js",
+      "codeQuality": {
+        "file": "script.js",
+        "issues": [
+          {
+            "line": 4,
+            "severity": "critical",
+            "category": "security",
+            "description": "Hardcoded API key exposed in source code (CWE-798: Use of Hard-coded Credentials). The live API key 'sk-live-hardcoded-demo-key' is embedded directly in client-side JavaScript, making it visible to anyone who inspects the code. This violates OWASP A07:2021 (Identification and Authentication Failures).",
+            "suggestion": "Remove the hardcoded API key immediately and revoke/rotate it. Use environment variables on the backend and implement a server-side proxy endpoint."
+          },
+          {
+            "line": 11,
+            "severity": "critical",
+            "category": "security",
+            "description": "Cross-Site Scripting (XSS) vulnerability via innerHTML (CWE-79). The premium banner uses innerHTML to inject unsanitized content including a javascript: protocol URL, allowing arbitrary script execution. This violates OWASP A03:2021 (Injection).",
+            "suggestion": "Replace innerHTML with textContent and use proper DOM methods for links. Never use javascript: protocol."
+          },
+          {
+            "line": 24,
+            "severity": "critical",
+            "category": "security",
+            "description": "Cross-Site Scripting (XSS) vulnerability via innerHTML with unsanitized user input (CWE-79). User-provided todo text is directly inserted into the DOM using innerHTML without any sanitization, allowing malicious scripts to execute.",
+            "suggestion": "Replace innerHTML with textContent: span.textContent = text;"
+          },
+          {
+            "line": 38,
+            "severity": "critical",
+            "category": "security",
+            "description": "API key exposure in URL query parameter (CWE-598). Sensitive credentials are transmitted in the URL, which gets logged in browser history, server logs, and proxy caches. Combined with OWASP A02:2021 (Cryptographic Failures).",
+            "suggestion": "Move the API key to a secure backend service and use POST with Authorization header."
+          },
+          {
+            "line": 38,
+            "severity": "high",
+            "category": "bug-risk",
+            "description": "Unhandled Promise rejection. The fetch call has no .catch() handler, so network failures, server errors, or rejected promises will fail silently, leaving the user in an inconsistent state.",
+            "suggestion": "Add comprehensive error handling with user feedback using .catch() or try/catch with async/await."
+          },
+          {
+            "line": 6,
+            "severity": "high",
+            "category": "bug-risk",
+            "description": "Missing null check for DOM element. If 'todo-input' element doesn't exist, accessing .value will throw TypeError and crash the function.",
+            "suggestion": "Add null checks for all DOM queries before accessing properties."
+          },
+          {
+            "line": 1,
+            "severity": "high",
+            "category": "performance",
+            "description": "Repeated DOM queries without caching. The code queries document.getElementById('todo-input') every time functions run, creating unnecessary performance overhead.",
+            "suggestion": "Cache DOM references at module initialization."
+          },
+          {
+            "line": 14,
+            "severity": "medium",
+            "category": "performance",
+            "description": "Missing event delegation for dynamically created elements. Each checkbox and delete button gets its own inline event handler, creating memory overhead and potential leaks.",
+            "suggestion": "Use event delegation on the parent container."
+          },
+          {
+            "line": 3,
+            "severity": "low",
+            "category": "security",
+            "description": "Client-side premium status check is easily bypassed. The isPremium flag can be manipulated via browser console, allowing users to bypass premium restrictions without payment.",
+            "suggestion": "Implement server-side premium status validation."
+          }
+        ],
+        "overallScore": 22,
+        "summary": "CRITICAL SECURITY ISSUES DETECTED - This code contains multiple severe vulnerabilities that must be addressed immediately before deployment. The file has 4 CRITICAL security flaws including a hardcoded API key, multiple XSS vulnerabilities via innerHTML with unsanitized user input, and API key exposure in URL parameters. Overall score: 22/100. IMMEDIATE ACTION REQUIRED: Remove and rotate the exposed API key, fix all XSS vulnerabilities, implement server-side validation, and add comprehensive error handling."
+      },
+      "testCoverage": {
+        "file": "script.js",
+        "hasTests": false,
+        "testFiles": [],
+        "untestedPaths": [
+          {
+            "type": "function",
+            "location": "addTodo() - lines 6-38",
+            "priority": "critical",
+            "reasoning": "Core business logic function that handles todo creation and enforces the premium gate (5-todo limit for free users). This is directly tied to monetization strategy and must work correctly to prevent free users from bypassing the limit.",
+            "suggestedTest": "Write comprehensive unit tests for addTodo covering: empty input, valid input, todo creation, input clearing, and all edge cases."
+          },
+          {
+            "type": "branch",
+            "location": "addTodo() - premium gate logic (lines 10-13)",
+            "priority": "critical",
+            "reasoning": "This is the CRITICAL monetization enforcement point. It prevents free users from exceeding 5 todos and displays the upgrade banner. A bug here could lead to revenue loss by allowing unlimited free usage.",
+            "suggestedTest": "Test boundary conditions: exactly 5 todos, attempting to add 6th todo, premium user with unlimited todos, and free user hitting limit."
+          },
+          {
+            "type": "function",
+            "location": "upgrade() - lines 40-45",
+            "priority": "critical",
+            "reasoning": "CRITICAL SECURITY AND PAYMENT FUNCTION. This function handles the upgrade/payment flow. Multiple severe issues: hardcoded API key, insecure transmission, no error handling, no payment verification.",
+            "suggestedTest": "Test upgrade success flow, network failures, API errors, payment verification, and error handling with comprehensive mocking."
+          },
+          {
+            "type": "edge-case",
+            "location": "addTodo() - XSS vulnerability via innerHTML (line 21)",
+            "priority": "critical",
+            "reasoning": "CRITICAL SECURITY VULNERABILITY. Using innerHTML to set user input creates an XSS attack vector. Malicious users could inject JavaScript code in todo text.",
+            "suggestedTest": "Test XSS prevention with malicious input like script tags, img onerror attributes, and HTML entities."
+          },
+          {
+            "type": "edge-case",
+            "location": "Global state management - isPremium variable",
+            "priority": "high",
+            "reasoning": "Global state variables can be manipulated via browser console, allowing users to bypass premium restrictions without payment.",
+            "suggestedTest": "Document the client-side security vulnerability and implement server-side validation tests."
+          }
+        ],
+        "coverageEstimate": 0,
+        "summary": "CRITICAL: This new file has ZERO test coverage and contains multiple critical security vulnerabilities and business logic flaws. The premium gate logic and payment function are critical to revenue and must be thoroughly tested. Estimated 0% coverage. BLOCK MERGE until critical security issues are addressed and minimum 80% test coverage achieved."
+      },
+      "refactorings": {
+        "file": "script.js",
+        "suggestions": [
+          {
+            "type": "simplify",
+            "location": "Line 4: apiKey variable declaration",
+            "impact": "high",
+            "description": "Remove hardcoded API key which poses a critical security vulnerability. The API key should never be exposed in client-side code.",
+            "before": "let apiKey = 'sk-live-hardcoded-demo-key';",
+            "after": "const API_ENDPOINT = '/api/upgrade'; // Backend endpoint that manages API key securely",
+            "benefits": "Eliminates critical security vulnerability by preventing API key exposure in client-side code. Prevents unauthorized API usage and credential theft."
+          },
+          {
+            "type": "extract-function",
+            "location": "addTodo function (lines 6-35)",
+            "impact": "high",
+            "description": "The addTodo function violates Single Responsibility Principle by handling input validation, premium checks, DOM creation, and event handling all in one function.",
+            "before": "function addTodo() { /* 30+ lines of mixed concerns */ }",
+            "after": "Separate into: createCheckbox(), createTodoText(), createPrioritySelect(), createDeleteButton(), createTodoElement(), canAddTodo(), showPremiumPrompt(), addTodo()",
+            "benefits": "Dramatically improves code maintainability and testability by separating concerns. Each function has a single responsibility and can be tested independently."
+          },
+          {
+            "type": "modernize",
+            "location": "Lines 13-14, 21-23: onclick event handlers",
+            "impact": "medium",
+            "description": "Using inline onclick handlers is outdated. Modern approach uses addEventListener and event delegation.",
+            "before": "checkbox.onclick = function() { /* ... */ };\ndeleteBtn.onclick = function() { /* ... */ };",
+            "after": "Use event delegation on parent: todoList.addEventListener('click', (event) => { /* handle all clicks */ });",
+            "benefits": "Event delegation reduces memory usage, handles dynamic elements automatically, and improves performance with large lists."
+          },
+          {
+            "type": "modernize",
+            "location": "Lines 11, 17, 26: innerHTML usage",
+            "impact": "high",
+            "description": "Using innerHTML with user input poses XSS security risks and is less performant than DOM methods or textContent.",
+            "before": "span.innerHTML = text;\npremiumBanner.innerHTML = 'Upgrade...';\npriority.innerHTML = '<option>...'",
+            "after": "span.textContent = text;\n// Use createElement and appendChild for structured content",
+            "benefits": "Prevents XSS attacks by avoiding HTML parsing of user input. Improves performance and security."
+          },
+          {
+            "type": "pattern-improvement",
+            "location": "upgrade function (lines 37-41)",
+            "impact": "high",
+            "description": "The upgrade function lacks error handling, uses insecure query parameters, and doesn't handle loading states.",
+            "before": "function upgrade() { fetch('...?key=' + apiKey).then(() => { isPremium = true; }); }",
+            "after": "async function upgrade() { try { /* POST to /api/upgrade with proper auth */ } catch(error) { /* handle errors */ } }",
+            "benefits": "Implements proper async/await for better error handling. Removes API key from client. Provides user feedback during loading and on errors."
+          }
+        ],
+        "summary": "The script.js file requires significant refactoring across multiple dimensions. Critical security issues include a hardcoded API key in client-side code (HIGH priority) and use of innerHTML with user input creating XSS vulnerabilities (HIGH priority). The monolithic addTodo function violates Single Responsibility Principle. Modernization opportunities include replacing inline onclick handlers with event delegation, using async/await, and implementing proper state management."
+      }
+    },
+    {
+      "file": "styles.css",
+      "codeQuality": {
+        "file": "styles.css",
+        "issues": [
+          {
+            "line": 2,
+            "severity": "high",
+            "category": "best-practice",
+            "description": "Insufficient color contrast for delete button. Using pure red (#ff0000) text without background context may fail WCAG AA contrast requirements (4.5:1 for normal text).",
+            "suggestion": "Use a darker red shade or ensure adequate background contrast: .delete-btn { color: #c00000; background-color: #fff; border: 1px solid #c00000; }"
+          },
+          {
+            "line": 3,
+            "severity": "high",
+            "category": "best-practice",
+            "description": "Poor color contrast for completed items. Gray text (#999999) on white background has a contrast ratio of only 2.85:1, failing WCAG AA requirements.",
+            "suggestion": "Use a darker gray that meets WCAG AA standards: .completed { color: #666666; /* Contrast ratio: 5.74:1 */ }"
+          },
+          {
+            "line": 1,
+            "severity": "medium",
+            "category": "best-practice",
+            "description": "Missing focus states for interactive elements. The CSS provides no :focus, :hover, or :active states for buttons or interactive elements, making keyboard navigation invisible.",
+            "suggestion": "Add clear focus indicators: .delete-btn:focus { outline: 2px solid #dc3545; outline-offset: 2px; }"
+          },
+          {
+            "line": 4,
+            "severity": "high",
+            "category": "maintainability",
+            "description": "Critical layout styles removed in PR. The patch shows removal of essential layout properties: 'display: flex', 'justify-content: space-between', and complete removal of button base styles.",
+            "suggestion": "Restore essential layout styles: .todo-item { display: flex; justify-content: space-between; align-items: center; margin: 8px 0; }"
+          },
+          {
+            "line": 1,
+            "severity": "medium",
+            "category": "best-practice",
+            "description": "Missing responsive design. Fixed width (420px) with no responsive breakpoints will cause horizontal scrolling on mobile devices.",
+            "suggestion": "Implement responsive container: .container { width: 100%; max-width: 420px; padding: 0 16px; }"
+          },
+          {
+            "line": 1,
+            "severity": "medium",
+            "category": "best-practice",
+            "description": "Hard-coded pixel values without CSS custom properties (variables). Makes theming and maintenance difficult.",
+            "suggestion": "Use CSS custom properties: :root { --color-primary: #007bff; --container-width: 420px; }"
+          }
+        ],
+        "overallScore": 42,
+        "summary": "The styles.css file has critical accessibility and maintainability issues. Two HIGH severity accessibility violations: insufficient color contrast for delete buttons (#ff0000) and completed items (#999999), both failing WCAG AA standards. A HIGH severity maintainability issue stems from removed essential layout styles that break core functionality. Score: 42/100. Immediate action required: restore removed layout styles, fix color contrast issues, add responsive breakpoints."
+      },
+      "testCoverage": {
+        "file": "styles.css",
+        "hasTests": false,
+        "testFiles": [],
+        "untestedPaths": [
+          {
+            "type": "edge-case",
+            "location": ".completed { color: #999999; }",
+            "priority": "critical",
+            "reasoning": "The .completed class uses #999999 (gray) color which has a WCAG contrast ratio of approximately 2.8:1 against white backgrounds, failing WCAG AA standards (requires 4.5:1).",
+            "suggestedTest": "Implement accessibility contrast tests using axe-core or jest-axe to verify WCAG AA compliance."
+          },
+          {
+            "type": "edge-case",
+            "location": ".delete-btn { color: #ff0000; }",
+            "priority": "high",
+            "reasoning": "The delete button only has color styling without focus states, hover states, or disabled states. This creates accessibility issues for keyboard navigation.",
+            "suggestedTest": "Add visual regression tests for button states using Playwright or Cypress."
+          },
+          {
+            "type": "edge-case",
+            "location": ".container { width: 420px; margin: 40px auto; }",
+            "priority": "high",
+            "reasoning": "Fixed width of 420px with no responsive breakpoints will cause horizontal scrolling on mobile devices (viewport widths < 500px).",
+            "suggestedTest": "Implement responsive design tests using Playwright viewport testing across mobile, tablet, and desktop sizes."
+          },
+          {
+            "type": "branch",
+            "location": ".todo-item, .completed interaction",
+            "priority": "high",
+            "reasoning": "Missing tests for the state transition when a .todo-item receives the .completed class. Need to verify CSS specificity and visual state changes.",
+            "suggestedTest": "Test state transitions with DOM Testing Library to verify completed styles are applied correctly."
+          }
+        ],
+        "coverageEstimate": 0,
+        "summary": "The styles.css file has ZERO test coverage. Critical accessibility issues exist with color contrast ratios failing WCAG AA standards. No responsive design testing for mobile viewports, no visual regression tests for UI state changes, and no accessibility tests for keyboard navigation. Recommend implementing CSS-in-JS testing, visual regression testing with Percy/Chromatic, and accessibility audits with axe-core."
+      },
+      "refactorings": {
+        "file": "styles.css",
+        "suggestions": [
+          {
+            "type": "modernize",
+            "location": "Root level - all color values",
+            "impact": "high",
+            "description": "Introduce CSS custom properties (variables) for colors, spacing, and typography to enable theming and consistency.",
+            "before": ".todo-item { background: #ffffff; }\n.delete-btn { color: #ff0000; }",
+            "after": ":root {\n  --color-primary: #007bff;\n  --color-danger: #dc3545;\n  --color-white: #ffffff;\n}\n.todo-item { background: var(--color-white); }",
+            "benefits": "Enables theme customization for premium features, improves maintainability by centralizing design tokens, makes dark mode implementation easier."
+          },
+          {
+            "type": "modernize",
+            "location": "All dimensional values",
+            "impact": "medium",
+            "description": "Convert pixel-based units to relative units (rem/em) for better accessibility and responsive design.",
+            "before": ".container { width: 420px; margin: 40px auto; }\n.header { font-size: 24px; }",
+            "after": ".container { width: 26.25rem; margin: 2.5rem auto; }\n.header { font-size: 1.5rem; }",
+            "benefits": "Improves accessibility by respecting user font-size preferences, enhances responsive behavior across devices."
+          },
+          {
+            "type": "pattern-improvement",
+            "location": "Missing button and todo-item styles",
+            "impact": "high",
+            "description": "Restore and enhance critical layout and interactive styles that were removed from the previous version.",
+            "before": ".todo-item { background: #ffffff; }",
+            "after": ".todo-item {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  margin: 0.5rem 0;\n  padding: 0.75rem;\n  background: var(--color-white);\n}",
+            "benefits": "Restores essential layout functionality, improves visual hierarchy and user experience."
+          },
+          {
+            "type": "pattern-improvement",
+            "location": "All interactive elements",
+            "impact": "high",
+            "description": "Add comprehensive accessibility improvements including focus states, proper contrast ratios, and keyboard navigation support.",
+            "before": "button { /* minimal styling */ }",
+            "after": "button:focus { outline: 2px solid var(--color-primary); outline-offset: 2px; }\nbutton:hover { background-color: #0056b3; }",
+            "benefits": "Ensures WCAG 2.1 AA compliance, improves keyboard navigation for accessibility, provides clear visual feedback."
+          }
+        ],
+        "summary": "The current styles.css file requires significant refactoring. Critical issues: (1) removed essential layout styles (flexbox, button styling) that break functionality, (2) hardcoded pixel values instead of responsive rem units, (3) lack of CSS custom properties for theming, (4) missing accessibility features (focus states), (5) no responsive design patterns. Implementing these refactorings will restore lost functionality, modernize the codebase, improve accessibility compliance, and enable theme customization for premium subscriptions."
+      }
+    }
+  ],
+  "summary": {
+    "totalFiles": 3,
+    "overallScore": 42,
+    "criticalIssues": 4,
+    "highPriorityTests": 11,
+    "refactoringOpportunities": 15
+  },
+  "recommendations": [
+    {
+      "priority": "critical",
+      "category": "Security",
+      "description": "IMMEDIATE ACTION REQUIRED: Remove hardcoded API key from script.js (line 4) and revoke/rotate it. The live API key 'sk-live-hardcoded-demo-key' is exposed in client-side code, creating a severe security vulnerability (OWASP A07:2021). This must be moved to a secure backend service.",
+      "files": [
+        "script.js"
+      ]
+    },
+    {
+      "priority": "critical",
+      "category": "Security",
+      "description": "Fix XSS vulnerabilities in script.js by replacing all innerHTML usage with textContent or safe DOM methods. User input is being directly inserted into the DOM via innerHTML (lines 11, 24, 40), allowing malicious script execution (OWASP A03:2021). This is a critical injection vulnerability.",
+      "files": [
+        "script.js"
+      ]
+    },
+    {
+      "priority": "critical",
+      "category": "Security",
+      "description": "Remove javascript: protocol usage in premium banner link (script.js line 11). This is a security anti-pattern that enables XSS attacks. Replace with proper event listeners and preventDefault pattern.",
+      "files": [
+        "script.js"
+      ]
+    },
+    {
+      "priority": "critical",
+      "category": "Business Logic",
+      "description": "Implement comprehensive testing for premium gate logic (script.js lines 10-13). This is the critical monetization enforcement point that prevents free users from exceeding 5 todos. A bug here could lead to revenue loss. Current test coverage: 0%.",
+      "files": [
+        "script.js"
+      ]
+    },
+    {
+      "priority": "high",
+      "category": "Accessibility",
+      "description": "Restore the lang='en' attribute to the <html> tag (index.html line 2) that was removed in this PR. This is a WCAG 2.1 Level A violation that impacts screen readers, translation services, and SEO.",
+      "files": [
+        "index.html"
+      ]
+    },
+    {
+      "priority": "high",
+      "category": "Accessibility",
+      "description": "Fix color contrast violations in styles.css. The .completed class (#999999) and .delete-btn (#ff0000) fail WCAG AA requirements (4.5:1 contrast ratio). This prevents users with visual impairments from using the application effectively.",
+      "files": [
+        "styles.css"
+      ]
+    },
+    {
+      "priority": "high",
+      "category": "Error Handling",
+      "description": "Add comprehensive error handling to upgrade() function in script.js (lines 40-45). Currently has no .catch() handler for network failures or API errors, which could leave users in inconsistent payment states.",
+      "files": [
+        "script.js"
+      ]
+    },
+    {
+      "priority": "high",
+      "category": "Functionality",
+      "description": "Restore removed CSS layout styles from previous version. The PR removed essential flexbox properties, button styling, and spacing from styles.css, breaking the todo item layout. These must be restored for the UI to function properly.",
+      "files": [
+        "styles.css"
+      ]
+    },
+    {
+      "priority": "high",
+      "category": "Testing",
+      "description": "Implement DOM structure tests for index.html. The premium-banner element (new feature in this PR) has no tests to verify its presence, which could cause silent failures in production. Test coverage: 0%.",
+      "files": [
+        "index.html"
+      ]
+    },
+    {
+      "priority": "medium",
+      "category": "Code Quality",
+      "description": "Refactor the monolithic addTodo() function in script.js (lines 6-38) into smaller, single-responsibility functions. Current function violates SRP by handling validation, premium checks, DOM creation, and event binding all in one 30+ line function.",
+      "files": [
+        "script.js"
+      ]
+    },
+    {
+      "priority": "medium",
+      "category": "Performance",
+      "description": "Replace inline onclick handlers with event delegation in script.js. Currently creates individual event handlers for each todo item, causing memory overhead. Use event delegation on parent container for better performance.",
+      "files": [
+        "script.js"
+      ]
+    },
+    {
+      "priority": "medium",
+      "category": "Accessibility",
+      "description": "Add ARIA labels and semantic HTML to index.html. Input field lacks aria-label, header uses generic div instead of <header><h1>, and main content uses div instead of <main>. These reduce accessibility for screen reader users.",
+      "files": [
+        "index.html"
+      ]
+    },
+    {
+      "priority": "medium",
+      "category": "Responsive Design",
+      "description": "Implement responsive design in styles.css. Fixed 420px width with no media queries will cause horizontal scrolling on mobile devices. Convert to max-width approach with responsive breakpoints.",
+      "files": [
+        "styles.css"
+      ]
+    },
+    {
+      "priority": "medium",
+      "category": "Maintainability",
+      "description": "Implement CSS custom properties (variables) in styles.css for colors, spacing, and typography. Current hardcoded values make theming and maintenance difficult, especially for premium subscription features.",
+      "files": [
+        "styles.css"
+      ]
+    },
+    {
+      "priority": "low",
+      "category": "Best Practices",
+      "description": "Add meta charset and viewport tags to index.html head section. Missing UTF-8 declaration and viewport configuration can cause rendering issues and poor mobile experience.",
+      "files": [
+        "index.html"
+      ]
+    }
+  ],
+  "metadata": {
+    "analyzedAt": "2026-10-02T12:00:00.000Z",
+    "duration": 1393921,
+    "agentVersions": {
+      "orchestrator": "1.0.0",
+      "code-quality-analyzer": "1.0.0",
+      "test-coverage-analyzer": "1.0.0",
+      "refactoring-suggester": "1.0.0"
+    }
+  }
+}
