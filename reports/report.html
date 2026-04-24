@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code Review Report</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 24px;
+      background: #f8f9fa;
+      color: #212529;
+    }
+    h1 { color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 12px; }
+    .summary {
+      background: white;
+      padding: 24px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin: 24px 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 16px;
+    }
+    .metric { text-align: center; }
+    .metric-value { font-size: 2em; font-weight: bold; color: #3498db; }
+    .metric-label { color: #6c757d; font-size: 0.9em; }
+    ul { list-style: none; padding: 0; }
+    li { padding: 12px; margin: 8px 0; border-radius: 4px; background: white; }
+    .rec-critical { border-left: 4px solid #e74c3c; }
+    .rec-high { border-left: 4px solid #f39c12; }
+    .rec-medium { border-left: 4px solid #3498db; }
+    .rec-low { border-left: 4px solid #27ae60; }
+    .priority { font-weight: bold; margin-right: 8px; }
+    .rec-critical .priority { color: #e74c3c; }
+    .rec-high .priority { color: #f39c12; }
+    .rec-medium .priority { color: #3498db; }
+    .rec-low .priority { color: #27ae60; }
+    footer { text-align: center; color: #6c757d; margin-top: 32px; font-size: 0.9em; }
+  </style>
+</head>
+<body>
+  <h1>🔍 Code Review Report</h1>
+  
+  <div class="summary">
+    <div class="metric">
+      <div class="metric-value">42</div>
+      <div class="metric-label">Overall Score</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">3</div>
+      <div class="metric-label">Files Reviewed</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">4</div>
+      <div class="metric-label">Critical Issues</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">11</div>
+      <div class="metric-label">Tests Needed</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">15</div>
+      <div class="metric-label">Refactorings</div>
+    </div>
+  </div>
+
+  <h2>🎯 Top Recommendations</h2>
+  <ul>
+      <li class="rec-critical">
+        <span class="priority">[CRITICAL]</span>
+        <strong>Security</strong>: IMMEDIATE ACTION REQUIRED: Remove hardcoded API key from script.js (line 4) and revoke/rotate it. The live API key 'sk-live-hardcoded-demo-key' is exposed in client-side code, creating a severe security vulnerability (OWASP A07:2021). This must be moved to a secure backend service.
+        <br><small>Files: script.js</small>
+      </li>
+    
+      <li class="rec-critical">
+        <span class="priority">[CRITICAL]</span>
+        <strong>Security</strong>: Fix XSS vulnerabilities in script.js by replacing all innerHTML usage with textContent or safe DOM methods. User input is being directly inserted into the DOM via innerHTML (lines 11, 24, 40), allowing malicious script execution (OWASP A03:2021). This is a critical injection vulnerability.
+        <br><small>Files: script.js</small>
+      </li>
+    
+      <li class="rec-critical">
+        <span class="priority">[CRITICAL]</span>
+        <strong>Security</strong>: Remove javascript: protocol usage in premium banner link (script.js line 11). This is a security anti-pattern that enables XSS attacks. Replace with proper event listeners and preventDefault pattern.
+        <br><small>Files: script.js</small>
+      </li>
+    
+      <li class="rec-critical">
+        <span class="priority">[CRITICAL]</span>
+        <strong>Business Logic</strong>: Implement comprehensive testing for premium gate logic (script.js lines 10-13). This is the critical monetization enforcement point that prevents free users from exceeding 5 todos. A bug here could lead to revenue loss. Current test coverage: 0%.
+        <br><small>Files: script.js</small>
+      </li>
+    
+      <li class="rec-high">
+        <span class="priority">[HIGH]</span>
+        <strong>Accessibility</strong>: Restore the lang='en' attribute to the <html> tag (index.html line 2) that was removed in this PR. This is a WCAG 2.1 Level A violation that impacts screen readers, translation services, and SEO.
+        <br><small>Files: index.html</small>
+      </li>
+    </ul>
+
+  <footer>
+    Generated at 2026-10-02T12:00:00.000Z • Duration: 1393921ms
+  </footer>
+</body>
+</html>
