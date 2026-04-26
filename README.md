@@ -1,4 +1,12 @@
-# Enterprise Multi-Agent Code Review Orchestrator
+# Bounded Multi-Agent GitHub PR Code Review Orchestrator (Claude Agent SDK + MCP)
+
+![TypeScript](https://img.shields.io/badge/TypeScript-5.3%2B-3178C6?style=flat-square&logo=typescript&logoColor=white)
+![Claude Agent SDK](https://img.shields.io/badge/SDK-Claude%20Agent%20SDK%20%2B%20MCP-2563EB?style=flat-square)
+![Guardrails](https://img.shields.io/badge/Autonomy-Read--Only%20Tools%20%2B%20Zod%20%2B%20RateLimiter-0D9488?style=flat-square)
+![Vitest](https://img.shields.io/badge/Tests-Vitest%20Suite-16A34A?style=flat-square)
+![License](https://img.shields.io/badge/License-MIT-slate?style=flat-square)
+
+![PR Review Scores & Guardrails](docs/images/pr_review_scores_and_guardrails.png)
 
 Production-ready multi-agent system that automates code review, test coverage analysis, and refactoring suggestions for GitHub pull requests using Claude Agent SDK.
 
