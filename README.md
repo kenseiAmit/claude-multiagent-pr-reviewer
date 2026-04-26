@@ -1,5 +1,6 @@
 # Bounded Multi-Agent GitHub PR Code Review Orchestrator (Claude Agent SDK + MCP)
 
+[![CI](https://github.com/kenseiAmit/claude-multiagent-pr-reviewer/actions/workflows/ci.yml/badge.svg)](https://github.com/kenseiAmit/claude-multiagent-pr-reviewer/actions/workflows/ci.yml)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.3%2B-3178C6?style=flat-square&logo=typescript&logoColor=white)
 ![Claude Agent SDK](https://img.shields.io/badge/SDK-Claude%20Agent%20SDK%20%2B%20MCP-2563EB?style=flat-square)
 ![Guardrails](https://img.shields.io/badge/Autonomy-Read--Only%20Tools%20%2B%20Zod%20%2B%20RateLimiter-0D9488?style=flat-square)
