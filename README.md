@@ -1,14 +1,14 @@
 <div align="center">
   <img src="assets/hero-banner.svg" alt="Claude Multi-Agent PR Reviewer" width="100%" />
   <br/><br/>
-  [![CI](https://github.com/kenseiAmit/claude-multiagent-pr-reviewer/actions/workflows/ci.yml/badge.svg)](https://github.com/kenseiAmit/claude-multiagent-pr-reviewer/actions/workflows/ci.yml)
-  ![TypeScript](https://img.shields.io/badge/TypeScript-5.3%2B-3178C6?style=flat-square&logo=typescript&logoColor=white)
-  ![Claude Agent SDK](https://img.shields.io/badge/SDK-Claude%20Agent%20SDK%20%2B%20MCP-2563EB?style=flat-square)
-  ![Guardrails](https://img.shields.io/badge/Autonomy-Read--Only%20Tools%20%2B%20Zod%20%2B%20RateLimiter-0D9488?style=flat-square)
-  ![Vitest](https://img.shields.io/badge/Tests-Vitest%20Suite-16A34A?style=flat-square)
-  ![License](https://img.shields.io/badge/License-MIT-slate?style=flat-square)
-
-  <br/>
+  <p>
+    <a href="https://github.com/kenseiAmit/claude-multiagent-pr-reviewer/actions/workflows/ci.yml"><img src="https://github.com/kenseiAmit/claude-multiagent-pr-reviewer/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
+    <img src="https://img.shields.io/badge/TypeScript-5.3%2B-3178C6?style=flat-square&amp;logo=typescript&amp;logoColor=white" alt="TypeScript" />
+    <img src="https://img.shields.io/badge/SDK-Claude%20Agent%20SDK%20%2B%20MCP-2563EB?style=flat-square" alt="Claude Agent SDK" />
+    <img src="https://img.shields.io/badge/Autonomy-Read--Only%20Tools%20%2B%20Zod%20%2B%20RateLimiter-0D9488?style=flat-square" alt="Guardrails" />
+    <img src="https://img.shields.io/badge/Tests-Vitest%20Suite-16A34A?style=flat-square" alt="Vitest" />
+    <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-475569?style=flat-square" alt="License" /></a>
+  </p>
   <img src="assets/live-demo.svg" alt="Live Execution Trace" width="96%" />
 </div>
 
