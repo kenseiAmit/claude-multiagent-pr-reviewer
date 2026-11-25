@@ -8,7 +8,7 @@
   "exports": {
     ".": "./dist/main.js"
   },
-  "author": "Amit Kumar Koshta",
+  "author": "Amit Kumar",
   "scripts": {
     "build": "tsc",
     "dev": "tsx src/main.ts",
