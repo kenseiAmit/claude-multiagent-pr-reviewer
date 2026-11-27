@@ -14,6 +14,8 @@
 
 ---
 
+![Claude Multi-Agent GitHub PR Reviewer — Bounded MCP Blueprint](docs/images/architecture_blueprint.png)
+
 ![PR Review Scores & Guardrails](docs/images/pr_review_scores_and_guardrails.png)
 
 Production-ready multi-agent system that automates code review, test coverage analysis, and refactoring suggestions for GitHub pull requests using Claude Agent SDK.
